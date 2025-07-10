@@ -1,0 +1,403 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践 | Estar0x</title><meta name="author" content="Estar0x"><meta name="copyright" content="Estar0x"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="在开始任何渗透测试工作之前，搭建一个可靠高效的工作环境至关重要。这包括组织工具、配置系统，以及确保所有必要资源随时可用。通过尽早建立结构良好的测试基础架构，我们可以减少停机时间、最大程度地减少错误并简化评估流程。 一、虚拟化环境准备推荐使用 VMware 专业版 创建 Kali 虚拟机，并安装 VMware Tools，以启用如剪贴板共享、文件拖拽、自动分辨率等增强功能，提升日常使用体验。专业版破">
+<meta property="og:type" content="article">
+<meta property="og:title" content="渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践">
+<meta property="og:url" content="http://example.com/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Estar0x">
+<meta property="og:description" content="在开始任何渗透测试工作之前，搭建一个可靠高效的工作环境至关重要。这包括组织工具、配置系统，以及确保所有必要资源随时可用。通过尽早建立结构良好的测试基础架构，我们可以减少停机时间、最大程度地减少错误并简化评估流程。 一、虚拟化环境准备推荐使用 VMware 专业版 创建 Kali 虚拟机，并安装 VMware Tools，以启用如剪贴板共享、文件拖拽、自动分辨率等增强功能，提升日常使用体验。专业版破">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg">
+<meta property="article:published_time" content="2025-07-10T09:01:39.000Z">
+<meta property="article:modified_time" content="2025-07-10T09:02:48.879Z">
+<meta property="article:author" content="Estar0x">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践",
+  "url": "http://example.com/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/",
+  "image": "http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg",
+  "datePublished": "2025-07-10T09:01:39.000Z",
+  "dateModified": "2025-07-10T09:02:48.879Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Estar0x",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background: [object Object];"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/泷束.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Estar0x</span></a><a class="nav-page-title" href="/"><span class="site-name">渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-07-10T09:01:39.000Z" title="发表于 2025-07-10 17:01:39">2025-07-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-07-10T09:02:48.879Z" title="更新于 2025-07-10 17:02:48">2025-07-10</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>在开始任何渗透测试工作之前，搭建一个可靠高效的工作环境至关重要。这包括组织工具、配置系统，以及确保所有必要资源随时可用。通过尽早建立结构良好的测试基础架构，我们可以减少停机时间、最大程度地减少错误并简化评估流程。</p>
+<h2 id="一、虚拟化环境准备"><a href="#一、虚拟化环境准备" class="headerlink" title="一、虚拟化环境准备"></a>一、虚拟化环境准备</h2><p>推荐使用 <strong>VMware 专业版</strong> 创建 Kali 虚拟机，并安装 <strong>VMware Tools</strong>，以启用如剪贴板共享、文件拖拽、自动分辨率等增强功能，提升日常使用体验。专业版破解安装教程请自行搜索。</p>
+<h2 id="二、Linux"><a href="#二、Linux" class="headerlink" title="二、Linux"></a>二、Linux</h2><p>Linux 是渗透测试中使用最广泛的操作系统。因此，我们必须精通它（或者至少熟悉它）。为此目的设置操作系统时，最好建立标准化配置，以始终如一地营造一个舒适的工作环境。</p>
+<hr>
+<h3 id="2-1-安装kali-linux"><a href="#2-1-安装kali-linux" class="headerlink" title="2.1 安装kali linux"></a>2.1 安装kali linux</h3><p>建议下载官方 Kali Linux 镜像 并导入 VMware 使用。安装教程请自行搜索。</p>
+<h3 id="2-2-APT包管理器和更新"><a href="#2-2-APT包管理器和更新" class="headerlink" title="2.2 APT包管理器和更新"></a>2.2 APT包管理器和更新</h3><p>在成功安装 Kali Linux 后，第一步应该是更新系统，确保你使用的是最新的内核、工具和安全补丁。Kali 基于 Debian，因此使用 APT（Advanced Packaging Tool）进行包管理。</p>
+<hr>
+<h4 id="2-2-1-APT-与包管理概述"><a href="#2-2-1-APT-与包管理概述" class="headerlink" title="2.2.1 APT 与包管理概述"></a>2.2.1 APT 与包管理概述</h4><p>APT 是 Debian 衍生系统的标准包管理工具，用于处理 <code>.deb</code> 格式的包。APT 会从你系统配置的 <strong>软件仓库（repositories）</strong> 获取可用软件列表，并自动解决依赖关系。</p>
+<p>Kali 的仓库地址通常存储在以下路径：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/apt/sources.list</span><br></pre></td></tr></table></figure>
+
+<p>我们可以通过以下命令查看非注释的仓库地址：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /etc/apt/sources.list | grep -v <span class="string">&quot;^#&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-2-2-使用-APT-更新系统"><a href="#2-2-2-使用-APT-更新系统" class="headerlink" title="2.2.2 使用 APT 更新系统"></a>2.2.2 使用 APT 更新系统</h4><p>运行以下命令来完成系统更新、自动清理不必要的软件包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update -y &amp;&amp; <span class="built_in">sudo</span> apt full-upgrade -y &amp;&amp; <span class="built_in">sudo</span> apt autoremove -y &amp;&amp; <span class="built_in">sudo</span> apt autoclean -y</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<ul>
+<li><code>update</code>：同步本地包索引</li>
+<li><code>full-upgrade</code>：更新已安装的软件包</li>
+<li><code>autoremove</code>：删除不再使用的依赖</li>
+<li><code>autoclean</code>：清理无用的缓存包文件</li>
+</ul>
+<hr>
+<h3 id="2-3-渗透测试工具"><a href="#2-3-渗透测试工具" class="headerlink" title="2.3 渗透测试工具"></a>2.3 渗透测试工具</h3><p>虽然 Kali 自带了大量渗透测试工具，但你可能会根据实际需求拓展工具集。下面是常见的渗透测试工具清单，你可以在左上角的应用中搜索他们以确定是否已经安装。当然，有工具未自带是难免的，接下来我会介绍两种安装工具的方法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 网络扫描与嗅探</span></span><br><span class="line">nmap</span><br><span class="line">netcat</span><br><span class="line">tcpdump</span><br><span class="line">wireshark</span><br><span class="line">ffuf</span><br><span class="line">gobuster</span><br><span class="line"></span><br><span class="line"><span class="comment"># 攻击与利用</span></span><br><span class="line">hydra</span><br><span class="line">sqlmap</span><br><span class="line">metasploit-framework</span><br><span class="line">crackmapexec</span><br><span class="line"></span><br><span class="line"><span class="comment"># 信息收集</span></span><br><span class="line">theharvester</span><br><span class="line">spiderfoot</span><br><span class="line">zaproxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># Windows 渗透/远程控制</span></span><br><span class="line">remmina</span><br><span class="line">xfreerdp</span><br><span class="line">rdesktop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通用工具</span></span><br><span class="line">curl</span><br><span class="line">git</span><br><span class="line">vim</span><br><span class="line">tmux</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="2-3-1-使用apt安装工具"><a href="#2-3-1-使用apt安装工具" class="headerlink" title="2.3.1 使用apt安装工具"></a>2.3.1 使用apt安装工具</h4><h5 id="✅-方法一：直接手动安装"><a href="#✅-方法一：直接手动安装" class="headerlink" title="✅ 方法一：直接手动安装"></a>✅ 方法一：直接手动安装</h5><p>如果你只需要其中几个工具，可以手动安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install netcat nmap wireshark tcpdump git vim tmux -y</span><br></pre></td></tr></table></figure>
+
+<h5 id="✅-方法二：使用列表批量安装"><a href="#✅-方法二：使用列表批量安装" class="headerlink" title="✅ 方法二：使用列表批量安装"></a>✅ 方法二：使用列表批量安装</h5><p>创建 <code>tools.list</code> 文件，将工具名按行列出，然后使用以下命令批量安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install $(<span class="built_in">cat</span> tools.list | <span class="built_in">tr</span> <span class="string">&quot;\n&quot;</span> <span class="string">&quot; &quot;</span>) -y</span><br></pre></td></tr></table></figure>
+
+<p>这确保你在每次搭建 Kali 环境时都能一致地完成工具部署。</p>
+<hr>
+<h4 id="2-3-2-安装-GitHub-上的工具"><a href="#2-3-2-安装-GitHub-上的工具" class="headerlink" title="2.3.2 安装 GitHub 上的工具"></a>2.3.2 安装 GitHub 上的工具</h4><p>Kali 官方仓库并不包含所有社区工具，有时我们需要从 GitHub 拉取<br>为了更好的管理github上下载的工具，建议新建一个统一的文件夹来管理所有从 GitHub 下载的工具。示例目录如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/home/kali/tools/</span><br><span class="line">├── linpeas/</span><br><span class="line">├── winpeas/</span><br><span class="line">├── AutoRecon/</span><br><span class="line">├── PEASS-ng/</span><br><span class="line">├── fuzzing-tools/</span><br><span class="line">└── other-scripts/</span><br></pre></td></tr></table></figure>
+<p>新建文件夹<code>~/tools</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> -p ~/tools</span><br><span class="line"><span class="built_in">cd</span> ~/tools</span><br></pre></td></tr></table></figure>
+<p>克隆需要的项目工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git</span><br></pre></td></tr></table></figure>
+
+<p>为了让这些脚本变成直接可用的命令（而不是需要<code>cd</code>到目录去使用工具），一般会采用软链接和写入<code>$PAHT</code>的方式</p>
+<h5 id="✅-方法一：将可执行脚本链接到-usr-local-bin-（系统级命令）"><a href="#✅-方法一：将可执行脚本链接到-usr-local-bin-（系统级命令）" class="headerlink" title="✅ 方法一：将可执行脚本链接到 /usr/local/bin/（系统级命令）"></a>✅ 方法一：将可执行脚本链接到 <code>/usr/local/bin/</code>（系统级命令）</h5><p>这种方法可以让你像使用 <code>nmap</code>、<code>sqlmap</code> 一样，<strong>直接输入命令名调用脚本</strong>，不需要配置额外路径。<br>示例：将 linpeas.sh 设置为全局命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆项目到 ~/tools（可自定义）</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/tools</span><br><span class="line"><span class="built_in">cd</span> ~/tools</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> +x ~/tools/privilege-escalation-awesome-scripts-suite/linPEAS/linpeas.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建软链接到 /usr/local/bin</span></span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">ln</span> -s ~/tools/privilege-escalation-awesome-scripts-suite/linPEAS/linpeas.sh /usr/local/bin/linpeas</span><br></pre></td></tr></table></figure>
+<p>完成后你就可以直接在终端运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">linpeas</span><br></pre></td></tr></table></figure>
+<p>适用于</p>
+<ul>
+<li>少量核心工具</li>
+<li>喜欢系统命令风格</li>
+<li>不介意使用 <code>sudo</code></li>
+</ul>
+<h5 id="✅-方法二：统一放入-tools-bin-，并添加到-PATH-环境变量中"><a href="#✅-方法二：统一放入-tools-bin-，并添加到-PATH-环境变量中" class="headerlink" title="✅ 方法二：统一放入 ~/tools/bin/，并添加到 PATH 环境变量中"></a>✅ 方法二：统一放入 <code>~/tools/bin/</code>，并添加到 PATH 环境变量中</h5><p>这种方式更适合集中管理大量脚本，<strong>不污染系统目录，也更易于迁移与备份</strong>。<br>示例：将 linpeas.sh 链接到 <code>~/tools/bin</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 克隆项目到 ~/tools</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/tools</span><br><span class="line"><span class="built_in">cd</span> ~/tools</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加执行权限</span></span><br><span class="line"><span class="built_in">chmod</span> +x ~/tools/privilege-escalation-awesome-scripts-suite/linPEAS/linpeas.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 bin 目录（若不存在）</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/tools/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接主脚本到 ~/tools/bin/</span></span><br><span class="line"><span class="built_in">ln</span> -s ~/tools/privilege-escalation-awesome-scripts-suite/linPEAS/linpeas.sh ~/tools/bin/linpeas</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加 tools/bin 到 PATH（只需做一次），这里需要注意你用的shell是bash还是zsh，不同shell是分别管理各自的path的，可以用 echo $SHELL 确认你当前的shell</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export PATH=&quot;$PATH:$HOME/tools/bin&quot;&#x27;</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export PATH=&quot;$PATH:$HOME/tools/bin&quot;&#x27;</span> &gt;&gt; ~/.zshrc</span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>然后就可以全局运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">linpeas</span><br></pre></td></tr></table></figure>
+<p>适用于</p>
+<ul>
+<li>维护多个工具脚本</li>
+<li>喜欢集中管理和易迁移</li>
+<li>不希望修改系统目录</li>
+</ul>
+<h3 id="2-4-快照"><a href="#2-4-快照" class="headerlink" title="2.4 快照"></a>2.4 快照</h3><p>安装相关软件包和存储库后，强烈建议进行一次备份<code>VM snapshot</code>。如果在执行进一步的配置或测试时出现任何错误，我们可以简单地恢复快照并从工作状态继续。每次重大配置更改后，甚至在渗透测试期间定期拍摄快照都是很好的做法，以避免丢失宝贵的进展。</p>
+<h2 id="三、现代终端仿真器：Wave-Terminal"><a href="#三、现代终端仿真器：Wave-Terminal" class="headerlink" title="三、现代终端仿真器：Wave Terminal"></a>三、现代终端仿真器：Wave Terminal</h2><p>Wave Terminal 是一款专为开发者设计的新型终端仿真器，旨在通过将现代 AI 驱动的功能与传统的命令行功能相结合来增强工作流程。该终端的最大优势之一是，您可以将所有内容（包括基于 Chromium 的浏览器）集中在一个地方（如下所示），从而减少了在不同窗口之间切换的麻烦。<br><img src="/attachments/2.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-20250704.png"></p>
+<h3 id="1-下载-deb-安装包"><a href="#1-下载-deb-安装包" class="headerlink" title="1. 下载 .deb 安装包"></a>1. 下载 <code>.deb</code> 安装包</h3><p>我们可以在 <a target="_blank" rel="noopener" href="https://www.waveterm.dev/download">wave官网</a>下载安装包</p>
+<h3 id="2-使用-APT-安装"><a href="#2-使用-APT-安装" class="headerlink" title="2. 使用 APT 安装"></a>2. 使用 APT 安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install ./waveterm.deb</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：如果你放在桌面，路径应为 <code>~/Desktop/waveterm.deb</code>  </p>
+</blockquote>
+<h3 id="3-启动-Wave-Terminal"><a href="#3-启动-Wave-Terminal" class="headerlink" title="3. 启动 Wave Terminal"></a>3. 启动 Wave Terminal</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">waveterm</span><br></pre></td></tr></table></figure>
+
+<p>首次运行会进入欢迎页面，可点击 “Get Started” 快速上手。</p>
+<h2 id="四、Shell-环境：Zsh-Oh-My-Zsh"><a href="#四、Shell-环境：Zsh-Oh-My-Zsh" class="headerlink" title="四、Shell 环境：Zsh + Oh My Zsh"></a>四、Shell 环境：Zsh + Oh My Zsh</h2><p>Shell 是我们在渗透测试虚拟机中使用的主要环境。因此，我们需要确保该环境能够满足我们的所有需求，并按照我们想要的方式进行配置。<br>最具可定制性和功能丰富的 shell 之一是<code>Z Shell (ZSH)</code>。</p>
+<h3 id="4-1-安装-Zsh"><a href="#4-1-安装-Zsh" class="headerlink" title="4.1 安装 Zsh"></a>4.1 安装 Zsh</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install zsh -y</span><br></pre></td></tr></table></figure>
+<p>安装完你可以手动启动一次：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zsh</span><br></pre></td></tr></table></figure>
+
+<p>首次运行 Zsh 会出现「zsh-newuser-install」，即一个蓝色提示框，提示你进行初始配置。<strong>直接按 <code>q</code> 退出</strong>，因为你后面会用 Oh My Zsh 来管理配置。</p>
+<h3 id="4-2-安装-Oh-My-Zsh"><a href="#4-2-安装-Oh-My-Zsh" class="headerlink" title="4.2 安装 Oh My Zsh"></a>4.2 安装 Oh My Zsh</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完后你的默认提示符就会变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜ ~</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-安装两个核心插件"><a href="#4-3-安装两个核心插件" class="headerlink" title="4.3 安装两个核心插件"></a>4.3 安装两个核心插件</h3><p>这两个插件非常常用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 命令补全建议</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-autosuggestions <span class="variable">$&#123;ZSH_CUSTOM:-~/.oh-my-zsh/custom&#125;</span>/plugins/zsh-autosuggestions</span><br><span class="line"></span><br><span class="line"><span class="comment"># 语法高亮</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-syntax-highlighting.git <span class="variable">$&#123;ZSH_CUSTOM:-~/.oh-my-zsh/custom&#125;</span>/plugins/zsh-syntax-highlighting</span><br></pre></td></tr></table></figure>
+
+<p>这些插件默认会被克隆到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~/.oh-my-zsh/custom/plugins/</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-配置-zshrc-启用插件"><a href="#4-4-配置-zshrc-启用插件" class="headerlink" title="4.4 配置 .zshrc 启用插件"></a>4.4 配置 <code>.zshrc</code> 启用插件</h3><p>打开配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>找到：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plugins=(git)</span><br></pre></td></tr></table></figure>
+<p>修改为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plugins=(git zsh-autosuggestions zsh-syntax-highlighting)</span><br></pre></td></tr></table></figure>
+<p>保存并重新加载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>现在你会看到输入历史建议、命令高亮都启用了</p>
+<h3 id="4-5-安装-Powerlevel10k-主题"><a href="#4-5-安装-Powerlevel10k-主题" class="headerlink" title="4.5 安装 Powerlevel10k 主题"></a>4.5 安装 Powerlevel10k 主题</h3><p><strong>Powerlevel10k</strong> 是一个为 Zsh 设计的 <strong>高性能、可高度定制的 Shell 主题</strong>，以其<strong>美观、信息丰富、响应迅速</strong>而著称。可以使用以下命令安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;source ~/powerlevel10k/powerlevel10k.zsh-theme&#x27;</span> &gt;&gt; ~/.zshrc</span><br><span class="line"><span class="built_in">exec</span> zsh</span><br></pre></td></tr></table></figure>
+
+<p>第一次运行会弹出图形化配置引导，全程按提示选择你喜欢的图标、Git 显示等即可，之后它会自动保存为 <code>.p10k.zsh</code> 并在 <code>.zshrc</code> 中引用。如果有不懂的提示就问问 ai 大人吧。</p>
+<p>如果以后想重配，运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p10k configure</span><br></pre></td></tr></table></figure>
+<h3 id="4-6-设置-zsh-为默认-Shell"><a href="#4-6-设置-zsh-为默认-Shell" class="headerlink" title="4.6 设置 zsh 为默认 Shell"></a>4.6 设置 zsh 为默认 Shell</h3><p>在安装Oh My Zsh时会询问你是否设置zsh为默认shell，如果当时没有选择确认，可以用以下命令设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s $(<span class="built_in">which</span> zsh)</span><br></pre></td></tr></table></figure>
+<p>重启终端或注销再登录，默认就进 zsh。</p>
+<h2 id="五、终端多路复用：Tmux"><a href="#五、终端多路复用：Tmux" class="headerlink" title="五、终端多路复用：Tmux"></a>五、终端多路复用：Tmux</h2><p><strong>Tmux（Terminal Multiplexer）</strong> 是一款运行于终端的 <strong>多路复用器</strong>，允许用户在一个终端窗口中同时运行、管理多个会话（Session）、窗口（Window）和窗格（Pane）。<br>除去在一个终端中拆分多个窗格，实现多任务并行的优势外，更重要的是其持久会话的功能，可以使得运行长时间任务（如爆破&#x2F;抓包），断线后无损恢复。</p>
+<hr>
+<h3 id="5-1-安装-Tmux-和-TPM（插件管理器）"><a href="#5-1-安装-Tmux-和-TPM（插件管理器）" class="headerlink" title="5.1 安装 Tmux 和 TPM（插件管理器）"></a>5.1 安装 Tmux 和 TPM（插件管理器）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update &amp;&amp; <span class="built_in">sudo</span> apt install tmux -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 克隆 TPM（Tmux Plugin Manager）</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm</span><br></pre></td></tr></table></figure>
+<h3 id="5-2-创建并配置-tmux-conf"><a href="#5-2-创建并配置-tmux-conf" class="headerlink" title="5.2 创建并配置 .tmux.conf"></a>5.2 创建并配置 <code>.tmux.conf</code></h3><p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.tmux.conf</span><br></pre></td></tr></table></figure>
+<p>然后粘贴以下配置（后续可按需修改）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br></pre></td><td class="code"><pre><span class="line"># Config Management</span><br><span class="line">unbind r</span><br><span class="line">bind r source-file ~/.tmux.conf \; display &quot;Config reloaded.&quot;</span><br><span class="line"></span><br><span class="line"># Control</span><br><span class="line">set -g prefix C-space</span><br><span class="line">set -g mouse on</span><br><span class="line"></span><br><span class="line"># History</span><br><span class="line">set-option -g history-limit 50000</span><br><span class="line"></span><br><span class="line"># Numbering &amp; Naming</span><br><span class="line">set -g base-index 1</span><br><span class="line">setw -g pane-base-index 1</span><br><span class="line">set-option -g automatic-rename on</span><br><span class="line">set-option -g automatic-rename-format &#x27;#&#123;b:pane_current_path&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># Windows</span><br><span class="line">unbind W</span><br><span class="line">bind-key W command-prompt -p &quot;Window name:&quot; &quot;new-window -n &#x27;%%&#x27;&quot; # New Window</span><br><span class="line">bind-key t command-prompt -p &quot;New name:&quot; &quot;rename-window &#x27;%%&#x27;&quot;   # Rename Window</span><br><span class="line"></span><br><span class="line"># Switch Windows</span><br><span class="line">bind-key 0 select-window -t 0</span><br><span class="line">bind-key 1 select-window -t 1</span><br><span class="line">bind-key 2 select-window -t 2</span><br><span class="line">bind-key 3 select-window -t 3</span><br><span class="line">bind-key 4 select-window -t 4</span><br><span class="line">bind-key 5 select-window -t 5</span><br><span class="line">bind-key 6 select-window -t 6</span><br><span class="line">bind-key 7 select-window -t 7</span><br><span class="line">bind-key 8 select-window -t 8</span><br><span class="line">bind-key 9 select-window -t 9</span><br><span class="line"></span><br><span class="line"># Panes</span><br><span class="line">bind-key P command-prompt -p &quot;Rename pane:&quot; &quot;select-pane -T &#x27;%%&#x27;&quot;</span><br><span class="line"></span><br><span class="line">bind x split-window -v</span><br><span class="line">bind y split-window -h</span><br><span class="line"></span><br><span class="line">bind-key h select-pane -L</span><br><span class="line">bind-key j select-pane -D</span><br><span class="line">bind-key k select-pane -U</span><br><span class="line">bind-key l select-pane -R</span><br><span class="line"></span><br><span class="line"># List of plugins</span><br><span class="line">set -g @plugin &#x27;tmux-plugins/tpm&#x27;</span><br><span class="line"></span><br><span class="line"># Theme</span><br><span class="line">set -g @plugin &#x27;catppuccin/tmux#v2.1.3&#x27;</span><br><span class="line">run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux</span><br><span class="line"></span><br><span class="line"># Options to make tmux more pleasant</span><br><span class="line">set -g mouse on</span><br><span class="line">set -g default-terminal &quot;tmux-256color&quot;</span><br><span class="line"></span><br><span class="line"># Configure the catppuccin plugin</span><br><span class="line">set -g @catppuccin_flavor &quot;mocha&quot;</span><br><span class="line">set -g @catppuccin_window_status_style &quot;rounded&quot;</span><br><span class="line"></span><br><span class="line">#----------------------------- Custom Theme</span><br><span class="line"># Define color variables inspired by Catppuccin Mocha, mapped to HackTheBox colors</span><br><span class="line">set -g @rosewater &quot;#ffffff&quot;       # BrightWhite</span><br><span class="line">set -g @flamingo &quot;#ff8484&quot;        # BrightRed</span><br><span class="line">set -g @pink &quot;#c16cfa&quot;            # BrightPurple</span><br><span class="line">set -g @mauve &quot;#9f00ff&quot;           # Purple</span><br><span class="line">set -g @red &quot;#ff3e3e&quot;             # Red</span><br><span class="line">set -g @maroon &quot;#ff8484&quot;          # BrightRed</span><br><span class="line">set -g @peach &quot;#ffcc5c&quot;           # BrightYellow</span><br><span class="line">set -g @yellow &quot;#ffaf00&quot;          # Yellow</span><br><span class="line">set -g @green &quot;#9fef00&quot;           # Green</span><br><span class="line">set -g @teal &quot;#2ee7b6&quot;            # Cyan</span><br><span class="line">set -g @sky &quot;#5cecc6&quot;             # BrightCyan</span><br><span class="line">set -g @sapphire &quot;#5cb2ff&quot;        # BrightBlue</span><br><span class="line">set -g @blue &quot;#004cff&quot;            # Blue</span><br><span class="line">set -g @lavender &quot;#ffffff&quot; #&quot;#c16cfa&quot;        # BrightPurple</span><br><span class="line">set -g @text &quot;#a4b1cd&quot;            # Foreground</span><br><span class="line">set -g @subtext1 &quot;#666666&quot;        # BrightBlack</span><br><span class="line">set -g @subtext0 &quot;#313f55&quot;        # SelectionBackground</span><br><span class="line">set -g @overlay2 &quot;#666666&quot;        # BrightBlack</span><br><span class="line">set -g @overlay1 &quot;#313f55&quot;        # SelectionBackground</span><br><span class="line">set -g @overlay0 &quot;#313f55&quot;        # CursorColor</span><br><span class="line">set -g @surface2 &quot;#666666&quot;        # BrightBlack</span><br><span class="line">set -g @surface1 &quot;#313f55&quot;        # SelectionBackground</span><br><span class="line">set -g @surface0 &quot;#313f55&quot;        # CursorColor</span><br><span class="line">set -g @base &quot;#1a2332&quot;            # Background</span><br><span class="line">set -g @mantle &quot;#000000&quot;          # Black</span><br><span class="line">set -g @crust &quot;#000000&quot;           # Black</span><br><span class="line">set -g @thm_bg &quot;#1a2332&quot;</span><br><span class="line"></span><br><span class="line"># Plugins</span><br><span class="line">set -g @plugin &#x27;tmux-plugins/tmux-online-status&#x27;</span><br><span class="line">set -g @plugin &#x27;tmux-plugins/tmux-battery&#x27;</span><br><span class="line"></span><br><span class="line"># Configure Online</span><br><span class="line">set -g @online_icon &quot;ok&quot;</span><br><span class="line">set -g @offline_icon &quot;nok&quot;</span><br><span class="line"></span><br><span class="line"># Status bar position and transparency</span><br><span class="line">set -g status-position bottom</span><br><span class="line">set -g status-style &quot;bg=#&#123;@thm_bg&#125;,fg=#&#123;@text&#125;&quot;  # Transparent background</span><br><span class="line"></span><br><span class="line"># Status left: Session name, pane command, and path</span><br><span class="line">set -g status-left-length 100</span><br><span class="line">set -g status-left &quot;&quot;</span><br><span class="line">set -ga status-left &quot;#&#123;?client_prefix,#&#123;#[bg=#&#123;@red&#125;,fg=#&#123;@base&#125;,bold]  #S &#125;,#&#123;#[bg=default,fg=#&#123;@mauve&#125;]  #S &#125;&#125;&quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@overlay0&#125;] │ &quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@blue&#125;]  #&#123;pane_current_command&#125; &quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@overlay0&#125;] │ &quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@teal&#125;]  #&#123;=/-32/...:#&#123;s|$USER|~|:#&#123;b:pane_current_path&#125;&#125;&#125; &quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@overlay0&#125;]#&#123;?window_zoomed_flag, │ ,&#125;&quot;</span><br><span class="line">set -ga status-left &quot;#[bg=default,fg=#&#123;@yellow&#125;]#&#123;?window_zoomed_flag,  zoom ,&#125;&quot;</span><br><span class="line"></span><br><span class="line"># Status right: Battery, online status, VPN status, date/time</span><br><span class="line">set -g status-right-length 100</span><br><span class="line">set -g status-right &quot;&quot;</span><br><span class="line">set -ga status-right &quot;#&#123;?#&#123;e|&gt;=:10,#&#123;battery_percentage&#125;&#125;,#&#123;#[bg=#&#123;@red&#125;,fg=#&#123;@base&#125;]&#125;,#&#123;#[bg=default,fg=#&#123;@peach&#125;]&#125;&#125; #&#123;battery_icon&#125; #&#123;battery_percentage&#125; &quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default,fg=#&#123;@overlay0&#125;] │ &quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default]#&#123;?#&#123;==:#&#123;online_status&#125;,ok&#125;,#[fg=#&#123;@sapphire&#125;] 󰖩 on ,#[fg=#&#123;@red&#125;,bold] 󰖪 off &#125;&quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default,fg=#&#123;@overlay0&#125;] │ &quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default,fg=#&#123;@green&#125;]  #(~/vpn_status.sh) &quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default,fg=#&#123;@overlay0&#125;] │ &quot;</span><br><span class="line">set -ga status-right &quot;#[bg=default,fg=#&#123;@sky&#125;] 󰭦 %Y-%m-%d 󰅐 %H:%M &quot;</span><br><span class="line"></span><br><span class="line"># Window status with rounded tabs and extra padding</span><br><span class="line">set -g window-status-format &quot;#[fg=#&#123;@overlay0&#125;]#[fg=#&#123;@text&#125;,bg=#&#123;@overlay0&#125;]  #I:#W  #[fg=#&#123;@overlay0&#125;,bg=default]&quot;</span><br><span class="line">set -g window-status-current-format &quot;#[fg=#&#123;@green&#125;]#[fg=#&#123;@base&#125;,bg=#&#123;@green&#125;]  #I:#W  #[fg=#&#123;@green&#125;,bg=default]&quot;</span><br><span class="line">set -g window-status-style &quot;bg=default&quot;</span><br><span class="line">set -g window-status-last-style &quot;bg=default,fg=#&#123;@green&#125;&quot;</span><br><span class="line">set -g window-status-activity-style &quot;bg=#&#123;@red&#125;,fg=#&#123;@base&#125;&quot;</span><br><span class="line">set -g window-status-bell-style &quot;bg=#&#123;@red&#125;,fg=#&#123;@base&#125;,bold&quot;</span><br><span class="line">set -gF window-status-separator &quot;  &quot;  # Add space between window tabs</span><br><span class="line"></span><br><span class="line"># Pane borders</span><br><span class="line">setw -g pane-border-status off  # Hide pane border status</span><br><span class="line">setw -g pane-active-border-style &quot;bg=default,fg=#&#123;@green&#125;&quot;</span><br><span class="line">setw -g pane-border-style &quot;bg=default,fg=#&#123;@surface0&#125;&quot;</span><br><span class="line">setw -g pane-border-lines single</span><br><span class="line"></span><br><span class="line"># Automatic window renaming</span><br><span class="line">set -wg automatic-rename on</span><br><span class="line">set -g automatic-rename-format &quot;Window&quot;</span><br><span class="line"></span><br><span class="line"># Justify window status</span><br><span class="line">set -g status-justify &quot;absolute-centre&quot;</span><br><span class="line"></span><br><span class="line"># Simulate bottom padding by adding a blank line</span><br><span class="line">set -g status-format[1] &quot;&quot;</span><br><span class="line"></span><br><span class="line"># Bootstrap tpm</span><br><span class="line">if &quot;test ! -d ~/.tmux/plugins/tpm&quot; \</span><br><span class="line">   &quot;run &#x27;git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm &amp;&amp; ~/.tmux/plugins/tpm/bin/install_plugins&#x27;&quot;</span><br><span class="line"></span><br><span class="line"># Initialize TMUX plugin manager</span><br><span class="line">run &#x27;~/.tmux/plugins/tpm/tpm&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>然后按：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ctrl + Space</span><br><span class="line">Shift + i</span><br></pre></td></tr></table></figure>
+<p>你会看到插件安装提示。Tmux 将提示您按下<code>ESCAPE</code>以继续您的会话。如果一切成功，状态栏会更新为主题样式，表示插件生效了。</p>
+<p><img src="/attachments/2.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-20250705.png"></p>
+<h3 id="5-3-常用快捷键备忘"><a href="#5-3-常用快捷键备忘" class="headerlink" title="5.3 常用快捷键备忘"></a>5.3 常用快捷键备忘</h3><p>注意不是一起按，是先按<code>Ctrl Space</code>松开，再按功能键</p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Ctrl + Space</code> → <code>x</code></td>
+<td>垂直拆分窗格</td>
+</tr>
+<tr>
+<td><code>Ctrl + Space</code> → <code>y</code></td>
+<td>水平拆分窗格</td>
+</tr>
+<tr>
+<td><code>Ctrl + Space</code> → <code>h/j/k/l</code></td>
+<td>窗格间导航</td>
+</tr>
+<tr>
+<td><code>Ctrl + Space</code> → <code>r</code></td>
+<td>重载配置文件</td>
+</tr>
+<tr>
+<td><code>Ctrl + Space</code> → <code>Shift + i</code></td>
+<td>安装所有插件（TPM）</td>
+</tr>
+</tbody></table>
+<h2 id="六、效率工具推荐"><a href="#六、效率工具推荐" class="headerlink" title="六、效率工具推荐"></a>六、效率工具推荐</h2><p>在本节中，我们将介绍一些其他工具，以进一步提高生产力和效率。</p>
+<h3 id="6-1-FZF"><a href="#6-1-FZF" class="headerlink" title="6.1 FZF"></a>6.1 FZF</h3><p>FZF 是一个基于终端的模糊查找器，旨在通过模糊匹配以交互方式过滤和搜索列表。它允许我们搜索字符串以匹配散布在另一个字符串中的项目，并立即获得反馈。基本上，它取代了 find 命令，因为 find 命令通常会产生大量的输入，需要我们筛选，而无法过滤掉某些字符串。<br>要安装 FZF，我们可以使用以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf</span><br><span class="line">~/.fzf/install</span><br></pre></td></tr></table></figure>
+<p>安装后，我们可以编辑<code>.zshrc</code>文件并为<code>fzf</code>命令分配别名为<code>ff</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim .zshrc</span><br></pre></td></tr></table></figure>
+<p>加入以下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># Aliases</span><br><span class="line">alias ff=&quot;fzf --style full --preview &#x27;fzf-preview.sh &#123;&#125;&#x27; --bind &#x27;focus:transform-header:file --brief &#123;&#125;&#x27;&quot;</span><br></pre></td></tr></table></figure>
+<p>重新加载<code>.zshrc</code>文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>在终端输入<code>ff</code>，它将打开一个交互式界面，您可以在其中看到当前目录的内容以及特定文件的内容<br><img src="/attachments/2.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-20250705-2.png"></p>
+<h3 id="6-2-EZA"><a href="#6-2-EZA" class="headerlink" title="6.2 EZA"></a>6.2 EZA</h3><p>Eza 是命令 的现代替代品<code>ls</code>。它提供丰富多彩、详细的文件列表，其中包含 Git 状态、图标以及超链接等高级功能。此外，如果您使用<a target="_blank" rel="noopener" href="https://www.nerdfonts.com/">Nerd 字体</a>，它还会使用颜色和可选图标来区分文件类型。我们甚至可以编辑 Eza 使用的主题和颜色。<br>由于它<code>ls</code>是我们在 Linux 系统上使用的最常用命令之一，因此拥有一个更好、更高效的工具可以让我们的生活长期变得更加轻松。要安装它，我们可以运行以下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install eza -y</span><br></pre></td></tr></table></figure>
+<p>现在，我们可以为<code>eza</code>命令分配不同的别名来获取列表的不同表示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>加入以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Aliases</span></span><br><span class="line"><span class="built_in">alias</span> ff=<span class="string">&quot;fzf --style full --preview &#x27;fzf-preview.sh &#123;&#125;&#x27; --bind &#x27;focus:transform-header:file --brief &#123;&#125;&#x27;&quot;</span></span><br><span class="line"><span class="built_in">alias</span> <span class="built_in">ls</span>=<span class="string">&#x27;eza $eza_params&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> l=<span class="string">&#x27;eza --git-ignore $eza_params&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> ll=<span class="string">&#x27;eza --all --header --long $eza_params&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> llm=<span class="string">&#x27;eza --all --header --long --sort=modified $eza_params&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> la=<span class="string">&#x27;eza -lbhHigUmuSa&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> lx=<span class="string">&#x27;eza -lbhHigUmuSa@&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> lt=<span class="string">&#x27;eza --tree $eza_params&#x27;</span></span><br><span class="line"><span class="built_in">alias</span> tree=<span class="string">&#x27;eza --tree $eza_params&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>编辑<code>.zshrc</code>文件后我们需要重新加载它。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+<p>现在，我们可以测试不同的命令并检查结果，简单来说：</p>
+<ul>
+<li>简洁查看（<code>ls</code>）</li>
+<li>Git 感知（<code>l</code>）</li>
+<li>详细列表（<code>ll</code>, <code>llm</code>, <code>la</code>, <code>lx</code>）</li>
+<li>树状结构（<code>lt</code>, <code>tree</code>）</li>
+</ul>
+<h3 id="6-3-Btop"><a href="#6-3-Btop" class="headerlink" title="6.3 Btop"></a>6.3 Btop</h3><p>Btop 是一款终端系统监控工具，可以替代<code>htop</code>和<code>top</code>工具。它色彩丰富，并可根据您的需求和偏好进行自定义。它可以监控 CPU、内存、磁盘、网络和进程，是调试性能问题的绝佳工具。可以使用以下命令安装该工具：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install btop -y</span><br></pre></td></tr></table></figure>
+<p><img src="/attachments/2.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-20250705-3.png"></p>
+<h2 id="七、HTTP工具：Curlie"><a href="#七、HTTP工具：Curlie" class="headerlink" title="七、HTTP工具：Curlie"></a>七、HTTP工具：Curlie</h2><h3 id="Curlie"><a href="#Curlie" class="headerlink" title="Curlie"></a>Curlie</h3><p><strong>Curlie</strong> 是一个结合了 <code>curl</code> 的强大功能和 <code>httpie</code> 的易读输出格式的命令行 HTTP 客户端，旨在提供更直观、更美观、更高效的 API 调试体验。我们可以使用以下命令下载该工具：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sS https://webinstall.dev/curlie | bash</span><br></pre></td></tr></table></figure>
+<p>现在，让我们通过请求相同的 API 端点<code>curlie</code>进行比较。<br><img src="/attachments/2.%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE-20250705-4.png"><br>如您所见，它以用户友好的方式提供了丰富多彩且结构化的输出，并比<code>curl</code> 提供了更多信息，使请求分析和调试变得更加容易。</p>
+<hr>
+<p>通过以上配置，你的 Kali 虚拟机已经具备了一个高效、稳定、可扩展的基础环境。后续可以根据实际需求逐步添加工具和插件，保持环境整洁、可控，将极大提升日常的渗透测试体验。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://academy.hackthebox.com/module/details/87">Hack The Box: Setting Up Module</a></p>
+<h2 id="宇宙安全声明"><a href="#宇宙安全声明" class="headerlink" title="宇宙安全声明"></a>宇宙安全声明</h2><p>本博客所提供的内容仅供学习与交流，旨在提高网络安全技术水平，谨遵守国家相关法律法规，请勿用于违法用途，博主不对任何人因使用博客中提到的技术或工具而产生的任何后果负责。如果您对文章内容有疑问，可以留言私信。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Estar0x</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/">http://example.com/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Estar0x</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/07/02/hello-world/" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Hello World</div></div><div class="info-2"><div class="info-item-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Estar0x</div><div class="author-info-description">这个作者很勤快，什么都写了</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Estar0x" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%99%9A%E6%8B%9F%E5%8C%96%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">一、虚拟化环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Linux"><span class="toc-number">2.</span> <span class="toc-text">二、Linux</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%AE%89%E8%A3%85kali-linux"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 安装kali linux</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-APT%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8%E5%92%8C%E6%9B%B4%E6%96%B0"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 APT包管理器和更新</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-1-APT-%E4%B8%8E%E5%8C%85%E7%AE%A1%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1 APT 与包管理概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-2-%E4%BD%BF%E7%94%A8-APT-%E6%9B%B4%E6%96%B0%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2 使用 APT 更新系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 渗透测试工具</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-1-%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7"><span class="toc-number">2.3.1.</span> <span class="toc-text">2.3.1 使用apt安装工具</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E7%9B%B4%E6%8E%A5%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">✅ 方法一：直接手动安装</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%88%97%E8%A1%A8%E6%89%B9%E9%87%8F%E5%AE%89%E8%A3%85"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">✅ 方法二：使用列表批量安装</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-%E5%AE%89%E8%A3%85-GitHub-%E4%B8%8A%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.3.2 安装 GitHub 上的工具</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E5%B0%86%E5%8F%AF%E6%89%A7%E8%A1%8C%E8%84%9A%E6%9C%AC%E9%93%BE%E6%8E%A5%E5%88%B0-usr-local-bin-%EF%BC%88%E7%B3%BB%E7%BB%9F%E7%BA%A7%E5%91%BD%E4%BB%A4%EF%BC%89"><span class="toc-number">2.3.2.1.</span> <span class="toc-text">✅ 方法一：将可执行脚本链接到 &#x2F;usr&#x2F;local&#x2F;bin&#x2F;（系统级命令）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E7%BB%9F%E4%B8%80%E6%94%BE%E5%85%A5-tools-bin-%EF%BC%8C%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0-PATH-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%AD"><span class="toc-number">2.3.2.2.</span> <span class="toc-text">✅ 方法二：统一放入 ~&#x2F;tools&#x2F;bin&#x2F;，并添加到 PATH 环境变量中</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%BF%AB%E7%85%A7"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 快照</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%8E%B0%E4%BB%A3%E7%BB%88%E7%AB%AF%E4%BB%BF%E7%9C%9F%E5%99%A8%EF%BC%9AWave-Terminal"><span class="toc-number">3.</span> <span class="toc-text">三、现代终端仿真器：Wave Terminal</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%8B%E8%BD%BD-deb-%E5%AE%89%E8%A3%85%E5%8C%85"><span class="toc-number">3.1.</span> <span class="toc-text">1. 下载 .deb 安装包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BD%BF%E7%94%A8-APT-%E5%AE%89%E8%A3%85"><span class="toc-number">3.2.</span> <span class="toc-text">2. 使用 APT 安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%90%AF%E5%8A%A8-Wave-Terminal"><span class="toc-number">3.3.</span> <span class="toc-text">3. 启动 Wave Terminal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Shell-%E7%8E%AF%E5%A2%83%EF%BC%9AZsh-Oh-My-Zsh"><span class="toc-number">4.</span> <span class="toc-text">四、Shell 环境：Zsh + Oh My Zsh</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%AE%89%E8%A3%85-Zsh"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 安装 Zsh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%AE%89%E8%A3%85-Oh-My-Zsh"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 安装 Oh My Zsh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E5%AE%89%E8%A3%85%E4%B8%A4%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%8F%92%E4%BB%B6"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 安装两个核心插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E9%85%8D%E7%BD%AE-zshrc-%E5%90%AF%E7%94%A8%E6%8F%92%E4%BB%B6"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 配置 .zshrc 启用插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-%E5%AE%89%E8%A3%85-Powerlevel10k-%E4%B8%BB%E9%A2%98"><span class="toc-number">4.5.</span> <span class="toc-text">4.5 安装 Powerlevel10k 主题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-%E8%AE%BE%E7%BD%AE-zsh-%E4%B8%BA%E9%BB%98%E8%AE%A4-Shell"><span class="toc-number">4.6.</span> <span class="toc-text">4.6 设置 zsh 为默认 Shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%BB%88%E7%AB%AF%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%EF%BC%9ATmux"><span class="toc-number">5.</span> <span class="toc-text">五、终端多路复用：Tmux</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%AE%89%E8%A3%85-Tmux-%E5%92%8C-TPM%EF%BC%88%E6%8F%92%E4%BB%B6%E7%AE%A1%E7%90%86%E5%99%A8%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 安装 Tmux 和 TPM（插件管理器）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E5%88%9B%E5%BB%BA%E5%B9%B6%E9%85%8D%E7%BD%AE-tmux-conf"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 创建并配置 .tmux.conf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E5%B8%B8%E7%94%A8%E5%BF%AB%E6%8D%B7%E9%94%AE%E5%A4%87%E5%BF%98"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 常用快捷键备忘</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90"><span class="toc-number">6.</span> <span class="toc-text">六、效率工具推荐</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-FZF"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 FZF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-EZA"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 EZA</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-Btop"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 Btop</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81HTTP%E5%B7%A5%E5%85%B7%EF%BC%9ACurlie"><span class="toc-number">7.</span> <span class="toc-text">七、HTTP工具：Curlie</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Curlie"><span class="toc-number">7.1.</span> <span class="toc-text">Curlie</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">8.</span> <span class="toc-text">参考资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%87%E5%AE%99%E5%AE%89%E5%85%A8%E5%A3%B0%E6%98%8E"><span class="toc-number">9.</span> <span class="toc-text">宇宙安全声明</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/" title="渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践">渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践</a><time datetime="2025-07-10T09:01:39.000Z" title="发表于 2025-07-10 17:01:39">2025-07-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/02/hello-world/" title="Hello World">Hello World</a><time datetime="2025-07-02T06:44:29.299Z" title="发表于 2025-07-02 14:44:29">2025-07-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Estar0x</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
