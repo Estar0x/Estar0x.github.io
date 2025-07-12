@@ -1,0 +1,257 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Burp Scanner 使用指南：爬虫与漏洞检测全流程解析 | Estar0x</title><meta name="author" content="Estar0x"><meta name="copyright" content="Estar0x"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="前言在 Web 渗透测试中，Burp Suite 不仅是一款功能强大的抓包工具，还内置了全面的漏洞扫描模块 —— Burp Scanner。它通过内置的爬虫（Crawler）自动构建网站结构，并结合被动与主动扫描器（Scanner）对目标进行漏洞检测，是执行高效 Web 安全测试的重要利器。  目标范围（Scope）Burp 的所有扫描操作都基于「范围控制」，即 Target → Scope 设置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Burp Scanner 使用指南：爬虫与漏洞检测全流程解析">
+<meta property="og:url" content="http://example.com/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Estar0x">
+<meta property="og:description" content="前言在 Web 渗透测试中，Burp Suite 不仅是一款功能强大的抓包工具，还内置了全面的漏洞扫描模块 —— Burp Scanner。它通过内置的爬虫（Crawler）自动构建网站结构，并结合被动与主动扫描器（Scanner）对目标进行漏洞检测，是执行高效 Web 安全测试的重要利器。  目标范围（Scope）Burp 的所有扫描操作都基于「范围控制」，即 Target → Scope 设置">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg">
+<meta property="article:published_time" content="2025-07-12T09:50:17.000Z">
+<meta property="article:modified_time" content="2025-07-12T09:52:27.643Z">
+<meta property="article:author" content="Estar0x">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Burp Scanner 使用指南：爬虫与漏洞检测全流程解析",
+  "url": "http://example.com/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/",
+  "image": "http://example.com/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg",
+  "datePublished": "2025-07-12T09:50:17.000Z",
+  "dateModified": "2025-07-12T09:52:27.643Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Estar0x",
+      "url": "http://example.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Burp Scanner 使用指南：爬虫与漏洞检测全流程解析',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background: [object Object];"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/image/泷束.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Estar0x</span></a><a class="nav-page-title" href="/"><span class="site-name">Burp Scanner 使用指南：爬虫与漏洞检测全流程解析</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Burp Scanner 使用指南：爬虫与漏洞检测全流程解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-07-12T09:50:17.000Z" title="发表于 2025-07-12 17:50:17">2025-07-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-07-12T09:52:27.643Z" title="更新于 2025-07-12 17:52:27">2025-07-12</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在 Web 渗透测试中，Burp Suite 不仅是一款功能强大的抓包工具，还内置了全面的漏洞扫描模块 —— Burp Scanner。它通过内置的爬虫（Crawler）自动构建网站结构，并结合被动与主动扫描器（Scanner）对目标进行漏洞检测，是执行高效 Web 安全测试的重要利器。</p>
+<hr>
+<h2 id="目标范围（Scope）"><a href="#目标范围（Scope）" class="headerlink" title="目标范围（Scope）"></a>目标范围（Scope）</h2><p>Burp 的所有扫描操作都基于「范围控制」，即 <strong>Target → Scope 设置</strong>。只有被包含在范围内的目标，才会被爬虫或扫描器处理。</p>
+<hr>
+<p>我们有两种方法将某个地址加入<code>Scope</code></p>
+<p>法一：在HTTP History中选中请求右键点击，选择 <code>Add to scope</code><br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173039805-1727378690.png" alt="3. Web Proxies-20250712"></p>
+<p>法二：所有经过 Burp Proxy 的 HTTP&#x2F;HTTPS 请求，其对应的目标（域名+路径）都会自动出现在 <code>Target → Site Map</code> 里，这是 Burp 的核心功能之一。我们可以在<code>Target → Site Map</code>选中请求右键，然后选择<code>Add to scope</code><br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173053537-316970822.png" alt="3. Web Proxies-20250712-1"></p>
+<p>如果扫描某些项目可能存在危险，或者可能会像注销功能一样结束会话，我们可能还需要将其从范围中排除。要从范围中排除某个项目，我们可以右键单击任何范围内的项目，然后选择<code>Remove from scope</code>。</p>
+<p>最后，我们可以转到 <code>Target&gt;Scope setting</code> 查看<code>Scope</code>的详细信息。在这里，我们还可以添加&#x2F;删除其他项目，并使用高级范围控制来指定要包含&#x2F;排除的正则表达式模式。<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173105017-688165228.png" alt="3. Web Proxies-20250712-4"></p>
+<h2 id="爬虫（Crawl）"><a href="#爬虫（Crawl）" class="headerlink" title="爬虫（Crawl）"></a>爬虫（Crawl）</h2><p>一旦我们准备好<code>Scope</code>，我们就可以转到<code>Dashboard</code>选项卡并单击<code>New Scan</code>来配置我们的扫描，它将自动填充我们的<code>Scope</code>内的项目：<br>我们看到 Burp 提供了两个扫描选项：<code>Crawl and Audit</code>和<code>Crawl</code>。</p>
+<ul>
+<li><code>Crawl</code>（网络爬虫）会通过访问网站页面中的任何链接、表单以及检查网站发出的任何请求来导航网站，从而构建网站的综合地图。最终，Burp 扫描器会向我们呈现目标地图，将所有可公开访问的数据集中显示，这将是本节的重点。</li>
+<li>如果我们选择<code>Crawl and Audit</code>，Burp 会在爬虫程序运行后运行扫描器，即实现爬虫、被动扫描、主动扫描的全过程，我们后面再介绍。</li>
+</ul>
+<blockquote>
+<p>注意：爬取扫描仅跟踪并映射我们指定的页面及其上找到的任何页面中的链接。它不会像 dirbuster 或 ffuf 那样执行模糊测试扫描来识别从未被引用的页面。您可以使用 Burp Intruder 或 Content Discovery 来完成此操作，然后根据需要将其添加到范围中。</p>
+</blockquote>
+<p><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173116551-1345415759.png" alt="3. Web Proxies-20250712-5"></p>
+<hr>
+<p>让我们选择<code>Crawl</code>，然后转到<code>Scan configuration</code>选项卡来配置我们的扫描。在这里，我们可以选择单击<code>New</code>“构建自定义配置”，这将允许我们设置诸如抓取速度或限制之类的配置<br>为了简单起见，我们将单击按钮<code>Select from library</code>，这将为我们提供一些可供选择的预设配置（或我们之前定义的自定义配置）：<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173126733-1607455216.png" alt="3. Web Proxies-20250712-6"></p>
+<p>继续到<code>Application login</code>选项卡。在此选项卡中，我们可以添加一组凭据，供 Burp 尝试在其找到的任何登录表单&#x2F;字段中进行登录。我们还可以通过在预配置的浏览器中执行手动登录来记录一组步骤，以便 Burp 知道要执行哪些步骤才能获得登录会话。<br>如果我们使用经过身份验证的用户运行扫描，这一点至关重要，这将使我们能够覆盖 Burp 可能无法访问的 Web 应用程序部分。由于我们没有任何凭据，因此我们将它留空。<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173136197-838300982.png" alt="3. Web Proxies-20250712-7"></p>
+<p>这样，我们就可以点击<code>Ok</code>按钮开始抓取扫描了。扫描开始后，我们可以在<code>Dashboard</code>以下选项卡中看到扫描进度<code>Tasks</code>：<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173158169-183571519.png" alt="3. Web Proxies-20250712-8"></p>
+<p>最后，扫描完成后，我们将在任务信息中看到<code>Crawl Finished</code>，然后返回 <code>Target&gt;Site map</code> 查看更新后的站点地图：<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173207026-483644524.png" alt="Pasted image 20250712171522"></p>
+<h2 id="被动扫描器（Passive-Scanner）"><a href="#被动扫描器（Passive-Scanner）" class="headerlink" title="被动扫描器（Passive Scanner）"></a>被动扫描器（Passive Scanner）</h2><p>现在站点地图已完全构建，我们可以选择扫描此目标以查找潜在漏洞。<br>与主动扫描不同，被动扫描不会发送任何新请求，而是分析目标&#x2F;范围内已访问页面的来源，然后尝试识别<code>potential</code>漏洞。这对于快速分析特定目标非常有用，例如缺少 HTML 标签或潜在的基于 DOM 的 XSS 漏洞。然而，由于不发送任何请求来测试和验证这些漏洞，被动扫描只能提供潜在漏洞的列表。不过，Burp 被动扫描器会<code>Confidence</code>为每个已识别的漏洞提供相应的级别，这也有助于确定潜在漏洞的优先级。<br>让我们先尝试仅执行被动扫描。为此，我们可以再次在 <code>Target&gt;Site map</code> 中选择目标，或在 Burp 代理历史记录（<code>HTTP history</code>）中选择请求，然后右键单击它并选择<code>Passively scan this target</code><br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173218832-1103687286.png" alt="3. Web Proxies-20250712-9"></p>
+<p>被动扫描将开始运行，其任务也可以在<code>Dashboard</code>选项卡中看到。扫描完成后，我们可以点击<code>View Details</code>查看已识别的漏洞。<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173228439-632576476.png" alt="3. Web Proxies-20250712-10"></p>
+<p>或者，我们可以在<code>Dashboard</code>选项卡的窗格<code>Issue activity</code>中查看所有已识别的问题。如我们所见，它显示了潜在漏洞的列表、其严重程度及其置信度。通常，我们希望查找具有<code>High</code>严重程度和<code>Certain</code>置信度的漏洞。但是，对于非常敏感的 Web 应用程序，我们应该包含所有级别的严重程度和置信度，并特别关注<code>High</code>严重程度和<code>Confident/Firm</code>置信度。<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173236953-263433931.png" alt="3. Web Proxies-20250712-11"></p>
+<h2 id="主动扫描仪（Active-Scanner）"><a href="#主动扫描仪（Active-Scanner）" class="headerlink" title="主动扫描仪（Active Scanner）"></a>主动扫描仪（Active Scanner）</h2><p> 主动漏洞扫描器是 Burp Scanner 最强大的部分。主动扫描比被动扫描更全面：</p>
+<ol>
+<li>它首先运行爬网程序和 Web 模糊测试器（如 dirbuster&#x2F;ffuf）来识别所有可能的页面</li>
+<li>它对所有已识别的页面运行被动扫描</li>
+<li>它检查被动扫描中识别出的每个漏洞，并发送请求来验证它们</li>
+<li>它执行 JavaScript 分析来识别进一步的潜在漏洞</li>
+<li>它模糊各种已识别的插入点和参数，以寻找常见漏洞，如 XSS、命令注入、SQL 注入和其他常见的 Web 漏洞</li>
+</ol>
+<p>启动主动扫描器有两种方式</p>
+<ul>
+<li>法一：我们可以像启动被动扫描一样，在 <code>Target&gt;Site map</code> 或在 Burp 代理历史记录（<code>HTTP history</code>）中选择请求，然后右键单击它并选择<code>Do active scan</code></li>
+<li>法二：我们可以使用<code>Dashboard</code>选项卡中的<code>New Scan</code>按钮对<code>Scope</code>运行扫描，这将允许我们配置主动扫描。这次，我们将选择<code>Crawl and Audit</code>选项，它将执行上述所有操作以及我们迄今为止讨论的所有内容。</li>
+</ul>
+<p>在<code>Scan configuration</code>选项卡，我们可以设置爬虫配置（如前所述）和审计配置。审计配置使我们能够选择要扫描的漏洞类型（默认为全部），扫描器将尝试在其中插入其有效载荷，此外还有许多其他有用的配置。同样，我们可以使用<code>Select from library</code>按钮选择配置预设。对于我们的测试，由于我们关注的是可能允许我们控制后端服务器的漏洞，因此我们将选择此<code>Audit checks - critical issues only</code>选项。<br>最后，我们可以在<code>Application login</code>选项卡添加登录详细信息，就像我们之前在爬虫配置中看到的那样。</p>
+<p>扫描完成后，我们可以在选项卡<code>Issue activity</code>中的窗格中查看<code>Dashboard</code>并过滤迄今为止已识别的所有问题。从结果上方的过滤器中，选择<code>High</code>并<code>Certain</code>查看过滤后的结果：<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173255629-1854244841.png" alt="3. Web Proxies-20250712-13"></p>
+<p>Burp 成功识别出一个 <strong>操作系统命令注入（OS Command Injection）</strong> 漏洞，并将其标记为 <code>High</code> 级别的严重性与 <code>Firm</code> 的置信度，表明该漏洞极有可能真实存在且具有较大危害。我们可以点击该条目，查看详细的说明，包括 Burp 发送的具体请求、服务器的响应内容，以及该漏洞的利用方式和影响范围。此外，<strong>“Path to issue”</strong> 功能还展示了从起始页面逐步访问至该漏洞页面的路径，帮助我们理解漏洞的触发流程与上下文位置。<br><img src="https://img2024.cnblogs.com/blog/3510591/202507/3510591-20250712173312288-1138417788.png" alt="3. Web Proxies-20250712-12"></p>
+<h2 id="报告导出"><a href="#报告导出" class="headerlink" title="报告导出"></a>报告导出</h2><p>最后，所有扫描完成后，我们可以前往 <code>Target&gt;Site map</code>，右键单击目标，然后选择 <code>Issue&gt;Report issues for this host</code>。系统将提示我们选择报告的导出类型以及要包含在报告中的信息。导出报告后，我们可以在任何 Web 浏览器中打开它来查看其详细信息。<br>Burp 的报告按照漏洞的严重性和可信度进行分类，还包含每个漏洞的详细描述、利用方式（PoC）以及修复建议，非常适合作为渗透测试过程中对外输出的参考材料。</p>
+<h2 id="参考资料与靶场"><a href="#参考资料与靶场" class="headerlink" title="参考资料与靶场"></a>参考资料与靶场</h2><p><a target="_blank" rel="noopener" href="https://academy.hackthebox.com/module/110/section/1084">HTB Academy Burp Scanner</a><br><a target="_blank" rel="noopener" href="https://academy.hackthebox.com/module/110/section/1084">HTB Academy ZAP Scanner</a></p>
+<h2 id="宇宙安全声明"><a href="#宇宙安全声明" class="headerlink" title="宇宙安全声明"></a>宇宙安全声明</h2><p>本博客所提供的内容仅供学习与交流，旨在提高网络安全技术水平，谨遵守国家相关法律法规，请勿用于违法用途，博主不对任何人因使用博客中提到的技术或工具而产生的任何后果负责。如果您对文章内容有疑问，可以留言私信。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Estar0x</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/">http://example.com/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Estar0x</a>！</span></div></div><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/" title="渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践</div></div><div class="info-2"><div class="info-item-1">前言在开始任何渗透测试工作之前，搭建一个可靠高效的工作环境至关重要。这包括组织工具、配置系统，以及确保所有必要资源随时可用。通过尽早建立结构良好的测试基础架构，我们可以减少停机时间、最大程度地减少错误并简化评估流程。 一、虚拟化环境准备推荐使用 VMware 专业版 创建 Kali 虚拟机，并安装 VMware Tools，以启用如剪贴板共享、文件拖拽、自动分辨率等增强功能，提升日常使用体验。专业版破解安装教程请自行搜索。 二、LinuxLinux 是渗透测试中使用最广泛的操作系统。因此，我们必须精通它（或者至少熟悉它）。为此目的设置操作系统时，最好建立标准化配置，以始终如一地营造一个舒适的工作环境。  2.1 安装kali linux建议下载官方 Kali Linux 镜像 并导入 VMware 使用。安装教程请自行搜索。 2.2 APT包管理器和更新在成功安装 Kali Linux 后，第一步应该是更新系统，确保你使用的是最新的内核、工具和安全补丁。Kali 基于 Debian，因此使用 APT（Advanced Packaging Tool）进行包管理。  2.2.1...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/image/%E4%BC%9E%E6%9C%A8%E5%B8%8C%E7%BE%8E.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Estar0x</div><div class="author-info-description">这个作者很勤快，什么都写了</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Estar0x" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E6%A0%87%E8%8C%83%E5%9B%B4%EF%BC%88Scope%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">目标范围（Scope）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%88%AC%E8%99%AB%EF%BC%88Crawl%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">爬虫（Crawl）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A2%AB%E5%8A%A8%E6%89%AB%E6%8F%8F%E5%99%A8%EF%BC%88Passive-Scanner%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">被动扫描器（Passive Scanner）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E6%89%AB%E6%8F%8F%E4%BB%AA%EF%BC%88Active-Scanner%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">主动扫描仪（Active Scanner）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A5%E5%91%8A%E5%AF%BC%E5%87%BA"><span class="toc-number">6.</span> <span class="toc-text">报告导出</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%E4%B8%8E%E9%9D%B6%E5%9C%BA"><span class="toc-number">7.</span> <span class="toc-text">参考资料与靶场</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%87%E5%AE%99%E5%AE%89%E5%85%A8%E5%A3%B0%E6%98%8E"><span class="toc-number">8.</span> <span class="toc-text">宇宙安全声明</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/12/Burp-Scanner-%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E7%88%AC%E8%99%AB%E4%B8%8E%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90/" title="Burp Scanner 使用指南：爬虫与漏洞检测全流程解析">Burp Scanner 使用指南：爬虫与漏洞检测全流程解析</a><time datetime="2025-07-12T09:50:17.000Z" title="发表于 2025-07-12 17:50:17">2025-07-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/10/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E4%BD%9C%E7%AB%99%E6%90%AD%E5%BB%BA%EF%BC%9AKali-Wave-Zsh-Tmux-%E5%B7%A5%E5%85%B7%E9%9B%86%E6%95%B4%E5%90%88%E5%AE%9E%E8%B7%B5/" title="渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践">渗透测试工作站搭建：Kali + Wave + Zsh + Tmux + 工具集整合实践</a><time datetime="2025-07-10T09:01:39.000Z" title="发表于 2025-07-10 17:01:39">2025-07-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/02/hello-world/" title="Hello World">Hello World</a><time datetime="2025-07-02T06:44:29.299Z" title="发表于 2025-07-02 14:44:29">2025-07-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Estar0x</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
